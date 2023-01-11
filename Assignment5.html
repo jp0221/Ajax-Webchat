@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AJAX Messaging Application</title>
+</head>
+<body onload="getNames()">
+    <div class="chatbox">
+        <h1 style="text-align: center">Ajax Chat</h1>
+        <h6 style="margin-left: 15px;">Active People: <span id="names"></span></h6>
+        <div class="chat1">
+            <label for="name1">Enter your Name:</label>
+            <input name="name1" id="name1" type="text"><br>
+            <label for="pass">Enter your Password:</label>
+            <input name="pass" id="pass" type="text"><br>
+            <label for="message">Message: </label><br>
+            <textarea onkeyup="updateMessage(document.getElementById('name1').value, document.getElementById('pass').value, this.value)" name="message" id="message" cols="30" rows="10"></textarea><br>
+            <input name="error" id="error" type="text">
+        </div>
+        <div class="chat2">
+            <label for="name2">Enter Your Name: </label>
+            <input name="name2" id="name2" type="text" onkeyup="listenMessage(document.getElementById('name2').value)"><br>
+			<label for="message2">Message: </label><br>
+            <textarea name="message2" id="message2" cols="30" rows="10"></textarea>
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+    function updateMessage(name, pass, message) {
+        //make the ajax call to update the page and put the reply text in the
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this.responseText);
+                document.getElementById('error').value = this.responseText;
+            }
+        };
+        xmlhttp.open("GET", "ajax.php?type=write&name=" + name + "&password=" + pass + "&message=" + message, true);
+        xmlhttp.send();
+    }
+
+    var interval = null;
+    function listenMessage(name) {
+        if(name == '') return;
+        //make an ajax call to retrieve the chat from the name
+        var xmlhttp2 = new XMLHttpRequest();
+        xmlhttp2.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this.responseText);
+                document.getElementById('message2').value = this.responseText;
+            }
+        };
+
+        clearInterval(interval);
+        interval = setInterval(function () {
+            xmlhttp2.open("GET", "ajax.php?type=read&name=" + name, true);
+            xmlhttp2.send();
+        }, 500);
+    }
+
+    function getNames() {
+        //make an ajax call to retrieve the chat from the name
+        var xmlhttp3 = new XMLHttpRequest();
+        xmlhttp3.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this.responseText);
+                document.getElementById('names').innerHTML = this.responseText;
+            }
+        };
+        xmlhttp3.open("GET", "ajax.php?type=name", true);
+        xmlhttp3.send();
+    }
+</script>
+
+<style>
+    .chatbox {
+        font-family: sans-serif;
+        width: 900px;
+        background: #003399;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        height: 700px;
+        margin: auto;
+    }
+
+    .chat1 {
+        background: #99ffff;
+		width: 90%;
+        margin: auto;
+        height: 200px;
+        padding: 25px 25px;
+    }
+
+    .chat2 {
+        background: #adadeb;
+        margin: 20px auto 0 auto !important;
+		width: 90%;
+        margin: auto;
+        height: 200px;
+        padding: 25px 25px;
+	}
+
+</style>
